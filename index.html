@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Котировки рапсового масла</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Котировки рапсового масла</h1>
+  <canvas id="priceChart"></canvas>
+  <script>
+    // Функция для получения данных о котировках
+    function fetchQuotes() {
+      return fetch('https://futsseapi.eastmoney.com/static/115_OI401_qt?callbackName=jQuery35103473820212821892_1698152558624&field=name,sc,dm,p,zsjd,zdf,zde,utime,o,zjsj,qrspj,h,l,mrj,mcj,vol,cclbh,zt,dt,np,wp,ccl,rz,cje,mcl,mrl,jjsj,j,lb,zf&token=1101ffec61617c99be287c1bec3085ff&_=1698152558625')
+        .then(response => response.text())
+        .then(data => {
+          // Парсинг данных
+          var startIndex = data.indexOf('"p":');
+          var endIndex = data.indexOf('.', startIndex);
+          var price = parseFloat(data.substring(startIndex + 4, endIndex));
+          return price;
+        })
+        .catch(error => console.error('Ошибка при получении данных:', error));
+    }
+
+    // Функция для обновления графика
+    function updateChart(price) {
+      var ctx = document.getElementById('priceChart').getContext('2d');
+      var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Последняя цена'],
+          datasets: [{
+            label: 'Цена рапсового масла',
+            data: [price],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // Получение данных о котировках и обновление графика
+    fetchQuotes().then(price => {
+      updateChart(price);
+    });
+  </script>
+</body>
+</html>
